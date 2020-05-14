@@ -1,6 +1,6 @@
 # st8m8
 
-A Clojure library designed to ... well, that part is up to you.
+Coming very soon! Keep yer eyes pealed :eyes:
 
 ## Usage
 
