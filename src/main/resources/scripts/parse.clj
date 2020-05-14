@@ -1,0 +1,1 @@
+(str "Is this your string? " *input*)

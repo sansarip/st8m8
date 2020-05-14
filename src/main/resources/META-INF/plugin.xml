@@ -1,0 +1,29 @@
+<idea-plugin>
+    <id>sansarip.com.sansarip.st8m8</id>
+    <name>Plugin display name here</name>
+    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+
+    <description><![CDATA[
+    Enter short description for your plugin here.<br>
+    <em>most HTML tags may be used</em>
+    ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <toolWindow id="St8m8" anchor="right" icon="/assets/ico.svg" factoryClass="com.sansarip.st8m8.App"/>
+    </extensions>
+
+    <actions>
+        <action id="com.sansarip.st8m8.LoadInAppAction" class="com.sansarip.st8m8.LoadInAppAction"
+                text="File -&gt; St8m8" description="Loads a file into the St8m8 tool window">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="meta alt 8"/>
+        </action>
+    </actions>
+</idea-plugin>

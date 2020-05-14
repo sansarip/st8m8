@@ -1,0 +1,46 @@
+/*
+STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
+*/
+
+.graph {
+    -fx-background-color: #F4FFFB !important;    
+}
+
+.vertex {
+    -fx-stroke-width: 3 !important;
+    -fx-stroke: #61B5F1 !important;
+    -fx-stroke-type: inside !important; /* you should keep this if using arrows */
+    -fx-fill: #B1DFF7 !important;
+}
+
+.vertex-label {
+    -fx-font: bold 8pt "sans-serif" !important;
+}
+
+.edge {
+    -fx-stroke-width: 2 !important;
+    -fx-stroke: #FF6D66 !important;  
+    -fx-stroke-dash-array: 2 5 2 5 !important; /* remove for clean edges */  
+    -fx-fill: transparent !important; /*important for curved edges */
+    -fx-stroke-line-cap: round !important;
+    -fx-opacity: 0.8 !important;
+}
+
+.edge-label {
+    -fx-font: normal 5pt "sans-serif" !important;
+}
+
+.arrow {
+    -fx-stroke-width: 2 !important;
+    -fx-stroke: #FF6D66 !important;  
+    -fx-opacity: 0.8 !important;
+}
+
+/* Custom vertex. You should revert any unwanted styling in the default element, 
+   style, since custom styles will be appended to the default style */
+.myVertex {
+    -fx-stroke-width: 5 !important;
+    -fx-stroke: green !important;
+    -fx-stroke-type: inside !important; /* you should keep this if using arrows */
+    -fx-fill: yellowgreen !important;
+}
