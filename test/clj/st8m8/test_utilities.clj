@@ -1,4 +1,9 @@
-(ns st8m8.test-utilities)
+(ns st8m8.test-utilities
+  (:require [clojure.pprint :refer [pprint]]
+            [clojure.string :as string]))
+
+(defn pprint* [s]
+  (-> s pprint with-out-str string/trim))
 
 (defn prn-str* [o]
   (binding [*print-meta* true]
@@ -14,3 +19,14 @@
    (let [pk (keys p)
          n (->> pk (random-sample 0.5) first)]
      (assoc c k (or n (first pk))))))
+
+(defn fmsg [e a]
+  (str "Expected: " (pprint* e)
+       "\n"
+       "Actual: " (pprint* a)
+       "\n"))
+
+(defn is= [e a]
+  (or (= e a)
+      (println (fmsg e a))))
+

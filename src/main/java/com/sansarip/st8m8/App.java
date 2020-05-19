@@ -1,5 +1,6 @@
 package com.sansarip.st8m8;
 
+import com.brunomnsilva.smartgraph.containers.ContentZoomPane;
 import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
@@ -41,17 +42,11 @@ public class App implements ToolWindowFactory {
         // store object properties for action-access
         final DB panel = new DB(this);
 
-        this.digraph.insertVertex("A");
-        this.digraph.insertVertex("B");
-
-        this.digraph.insertEdge("A", "B", "AB");
-        this.digraph.insertEdge("B", "A", "BA");
-
-       addPanel(this.digraph);
+        addPanel(this.digraph);
     }
 
-    private Scene createScene(SmartGraphPanel graphView) {
-        return new Scene(graphView, 1024, 768);
+    private Scene createScene(ContentZoomPane view) {
+        return new Scene(view, 1024, 768);
     }
 
     void addPanel(Digraph dg) {
@@ -60,7 +55,7 @@ public class App implements ToolWindowFactory {
             graphView.setAutomaticLayout(true);
             this.digraph = dg;
             this.graphView = graphView;
-            Scene scene = this.createScene(graphView);
+            Scene scene = this.createScene(new ContentZoomPane(graphView));
             this.panel.setScene(scene);
             graphView.init();
         });

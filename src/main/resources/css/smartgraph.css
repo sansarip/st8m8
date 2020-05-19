@@ -14,7 +14,7 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 }
 
 .vertex-label {
-    -fx-font: bold 8pt "sans-serif" !important;
+    -fx-font: bold 12pt "sans-serif" !important;
 }
 
 .edge {
@@ -27,7 +27,7 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 }
 
 .edge-label {
-    -fx-font: normal 5pt "sans-serif" !important;
+    -fx-font: normal 8pt "sans-serif" !important;
 }
 
 .arrow {

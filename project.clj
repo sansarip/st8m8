@@ -6,4 +6,5 @@
   :source-paths ["src/clj"]
   :test-paths ["test/clj"]
   :repl-options {:init-ns st8m8.parsley}
-  :profiles {:dev {:dependencies [[org.clojure/test.check "0.10.0"]]}})
+  :profiles {:dev {:dependencies [[org.clojure/test.check "0.10.0"]
+                                  [tupelo "0.9.201"]]}})
