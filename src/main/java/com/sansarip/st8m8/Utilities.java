@@ -1,5 +1,6 @@
 package com.sansarip.st8m8;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -13,6 +14,8 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class Utilities {
@@ -63,6 +66,21 @@ public class Utilities {
             return ((DB) content.getComponent()).app;
         }
         return null;
+    }
+
+    public static Map<String, Map<String, String>> toHashMap(String json) throws IOException {
+        return (Map<String, Map<String, String>>) new ObjectMapper().readValue(json, Map.class);
+
+    }
+
+    public static Map<String, Map<String, String>> readClojureFile(String fileName) {
+        try {
+            String json = execCmd(String.format("./bb.sh \"%s\"", fileName)).replaceAll("\\\\\"", "\"").replaceAll("^\"+|\"+$", "");
+            return toHashMap(json);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new HashMap<>();
     }
 }
 

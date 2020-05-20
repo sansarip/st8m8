@@ -1,26 +1,18 @@
-package com.sansarip.st8m8;
+package com.sansarip.st8m8.actions;
 
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentManager;
+import com.sansarip.st8m8.App;
+import com.sansarip.st8m8.Utilities;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jetbrains.annotations.NotNull;
-import sun.nio.ch.Util;
 
 import java.util.Map;
-import java.util.Objects;
 
-public class LoadInAppAction extends AnAction {
+public class ReadAction extends AnAction {
 
     private class EdgeLabel {
         String inboundEdge;
@@ -93,7 +85,7 @@ public class LoadInAppAction extends AnAction {
         Project project = e.getProject();
         if (project != null) {
             String fileName = Utilities.targetFileName(project);
-            Map<String, Map<String, String>> nodeMap = Parse.parse(fileName);
+            Map<String, Map<String, String>> nodeMap = Utilities.readClojureFile(fileName);
             App app = Utilities.getApp(project);
             if (app != null) {
                 updateGraph(app, nodeMap);

@@ -1,6 +1,5 @@
 package com.sansarip.st8m8;
 
-import com.brunomnsilva.smartgraph.containers.ContentZoomPane;
 import com.brunomnsilva.smartgraph.graph.Digraph;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
@@ -12,16 +11,16 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
 import static com.sansarip.st8m8.Utilities.createScripts;
-import static com.sansarip.st8m8.Utilities.resourceToFile;
 
 
 public class App implements ToolWindowFactory {
-    Digraph digraph;
+    public Digraph digraph;
     SmartGraphPanel graphView = null;
     JFXPanel panel;
     ToolWindow toolWindow = null;
@@ -32,34 +31,33 @@ public class App implements ToolWindowFactory {
         this.panel = new JFXPanel();
     }
 
-    @Override
-    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        createScripts();
-
-        Platform.setImplicitExit(false);
-        this.toolWindow = toolWindow;
-
-        // store object properties for action-access
-        final DB panel = new DB(this);
-
-        addPanel(this.digraph);
+    private void setScene(Container view) {
+        this.panel.setScene(new Scene(view));
     }
 
-    private Scene createScene(ContentZoomPane view) {
-        return new Scene(view, 1024, 768);
+    private void setProperties(Digraph dg, SmartGraphPanel graphView) {
+        this.digraph = dg;
+        this.graphView = graphView;
     }
 
-    void addPanel(Digraph dg) {
+    public void addPanel(Digraph dg) {
         Platform.runLater(() -> {
             SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(dg, this.strategy);
-            graphView.setAutomaticLayout(true);
-            this.digraph = dg;
-            this.graphView = graphView;
-            Scene scene = this.createScene(new ContentZoomPane(graphView));
-            this.panel.setScene(scene);
+            setProperties(dg, graphView);
+            setScene(new Container(graphView));
             graphView.init();
         });
         JComponent component = this.toolWindow.getComponent();
         component.getParent().add(this.panel);
+    }
+
+    @Override
+    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        createScripts();
+        Platform.setImplicitExit(false);
+        this.toolWindow = toolWindow;
+        // store object properties for action-access
+        new DB(this);
+        addPanel(this.digraph);
     }
 }
