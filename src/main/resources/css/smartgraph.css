@@ -3,36 +3,39 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 */
 
 .graph {
-    -fx-background-color: #F4FFFB !important;    
+    -fx-background-color: #CCDEFF !important;
+    -fx-border-color: #131F33 !important;
+    -fx-border-radius: 4 !important
 }
 
 .vertex {
     -fx-stroke-width: 3 !important;
-    -fx-stroke: #61B5F1 !important;
+    -fx-stroke: #131F33 !important;
     -fx-stroke-type: inside !important; /* you should keep this if using arrows */
-    -fx-fill: #B1DFF7 !important;
+    -fx-fill: #FFF8BE !important;
 }
 
 .vertex-label {
-    -fx-font: bold 12pt "sans-serif" !important;
+    -fx-font: bold 10pt "sans-serif" !important;
 }
 
 .edge {
     -fx-stroke-width: 2 !important;
-    -fx-stroke: #FF6D66 !important;  
-    -fx-stroke-dash-array: 2 5 2 5 !important; /* remove for clean edges */  
+    -fx-stroke: #CF6F46 !important;
+    -fx-stroke-dash-array: 2 5 2 5 !important; /* remove for clean edges */
     -fx-fill: transparent !important; /*important for curved edges */
     -fx-stroke-line-cap: round !important;
     -fx-opacity: 0.8 !important;
 }
 
 .edge-label {
-    -fx-font: normal 8pt "sans-serif" !important;
+
+    -fx-font: "Work Sans" normal 8pt "sans-serif" !important;
 }
 
 .arrow {
     -fx-stroke-width: 2 !important;
-    -fx-stroke: #FF6D66 !important;  
+    -fx-stroke: #CF6F46 !important;
     -fx-opacity: 0.8 !important;
 }
 
