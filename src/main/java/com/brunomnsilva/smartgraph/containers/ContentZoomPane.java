@@ -25,6 +25,8 @@ package com.brunomnsilva.smartgraph.containers;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -59,7 +61,7 @@ public class ContentZoomPane extends BorderPane {
 
     private static final double MIN_SCALE = 1;
     private static final double MAX_SCALE = 5;
-    private static final double SCROLL_DELTA = 0.25;
+    private static final double SCROLL_DELTA = 0.1;
 
     public ContentZoomPane(Node content) {
         if (content == null) {
@@ -68,10 +70,9 @@ public class ContentZoomPane extends BorderPane {
 
         this.content = content;
 
-        Node center = content;
         content.toFront();
 
-        setCenter(center);
+        setCenter(content);
         setRight(createSlider());
 
         enablePanAndZoom();
@@ -176,7 +177,6 @@ public class ContentZoomPane extends BorderPane {
 
         setOnMouseDragged((MouseEvent event) -> {
             if (event.isSecondaryButtonDown()) {
-                
                 content.setTranslateX(sceneDragContext.translateAnchorX + event.getX() - sceneDragContext.mouseAnchorX);
                 content.setTranslateY(sceneDragContext.translateAnchorY + event.getY() - sceneDragContext.mouseAnchorY);
             }
