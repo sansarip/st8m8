@@ -20,7 +20,7 @@
     </extensions>
 
     <actions>
-        <action id="com.sansarip.st8m8.LoadInAppAction" class="com.sansarip.st8m8.LoadInAppAction"
+        <action id="com.sansarip.st8m8.actions.ReadAction" class="com.sansarip.st8m8.actions.ReadAction"
                 text="File -&gt; St8m8" description="Loads a file into the St8m8 tool window">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="meta alt 8"/>
