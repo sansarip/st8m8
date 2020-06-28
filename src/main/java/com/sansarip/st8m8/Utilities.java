@@ -13,7 +13,7 @@ import com.intellij.ui.content.ContentManager;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
-import java.util.Base64;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -35,6 +35,16 @@ public class Utilities {
     public static String execCmd(String cmd) throws java.io.IOException {
         java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
         return s.hasNext() ? s.next() : "";
+    }
+
+    public static String resourceToUri (String fname, String resourcePath) {
+        File f = resourceToFile(fname, resourcePath);
+        try {
+            return f.toURI().toURL().toExternalForm();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static void createScripts() {

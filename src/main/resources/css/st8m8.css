@@ -1,3 +1,15 @@
+.container {
+    -fx-background-color: #CCDEFF !important;
+}
+
+.loader {
+    -fx-progress-color: #131F33 !important;
+}
+
+.loading-message {
+    -fx-font: "Work Sans" normal 8pt "sans-serif" !important;
+}
+
 /*
 STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 */
@@ -5,7 +17,7 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 .graph {
     -fx-background-color: #CCDEFF !important;
     -fx-border-color: #131F33 !important;
-    -fx-border-radius: 4 !important
+    -fx-border-radius: 4 !important;
 }
 
 .vertex {
@@ -29,7 +41,6 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 }
 
 .edge-label {
-
     -fx-font: "Work Sans" normal 8pt "sans-serif" !important;
 }
 

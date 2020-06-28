@@ -942,14 +942,6 @@ public class SmartGraphPanel<V, E> extends Pane {
      * Loads the default stylesheet and applies the .graph class to this panel.
      */
     private void loadStylesheet() {
-        File f = Utilities.resourceToFile("./smartgraph.css", "css/smartgraph.css");
-        String css = null;
-        try {
-            css = f.toURI().toURL().toExternalForm();
-        } catch (MalformedURLException e) {
-            Logger.getLogger(SmartGraphPanel.class.getName()).log(Level.WARNING, "CSS not found.");
-        }
-        getStylesheets().add(css);
         this.getStyleClass().add("graph");
     }
 

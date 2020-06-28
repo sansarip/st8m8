@@ -8,19 +8,33 @@ import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.openapi.wm.ex.ToolWindowEx;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentManager;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+import java.awt.*;
+
 import static com.sansarip.st8m8.Utilities.createScripts;
+import static com.sansarip.st8m8.Utilities.resourceToUri;
 
 
 public class App implements ToolWindowFactory {
     public Digraph digraph;
+    public Boolean isLoading = false;
     SmartGraphPanel graphView = null;
     JFXPanel panel;
     ToolWindow toolWindow = null;
@@ -31,8 +45,20 @@ public class App implements ToolWindowFactory {
         this.panel = new JFXPanel();
     }
 
-    private void setScene(Container view) {
-        this.panel.setScene(new Scene(view));
+    private Scene newScene(Parent view) {
+        Component parentComponent = this.toolWindow.getComponent().getParent();
+        Scene scene = new Scene(view, parentComponent.getWidth(), parentComponent.getHeight());
+        scene.getStylesheets().add(resourceToUri("./st8m8.css", "css/st8m8.css"));
+        return scene;
+    }
+
+    private void setScene(Parent view) {
+        this.panel.setScene(newScene(view));
+    }
+
+    private void reloadPanel() {
+        JComponent component = this.toolWindow.getComponent();
+        component.getParent().add(this.panel);
     }
 
     private void setProperties(Digraph dg, SmartGraphPanel graphView) {
@@ -40,15 +66,35 @@ public class App implements ToolWindowFactory {
         this.graphView = graphView;
     }
 
-    public void addPanel(Digraph dg) {
+    public void load(String message) {
+        this.isLoading = true;
+        Platform.runLater(() -> {
+            VBox layout = new VBox(10);
+            layout.setAlignment(Pos.CENTER);
+
+            ProgressIndicator loadingSpinner = new ProgressIndicator();
+            loadingSpinner.getStyleClass().add("loader");
+
+            Label loadingMessage = new Label(message);
+            loadingMessage.getStyleClass().add("loading-message");
+
+            layout.getChildren().addAll(loadingMessage, loadingSpinner);
+            layout.getStyleClass().add("container");
+
+            setScene(layout);
+        });
+        // This must remain outside of the runLater
+        reloadPanel();
+    }
+
+    public void setGraphPanelScene(Digraph dg) {
         Platform.runLater(() -> {
             SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(dg, this.strategy);
             setProperties(dg, graphView);
             setScene(new Container(graphView));
             graphView.init();
         });
-        JComponent component = this.toolWindow.getComponent();
-        component.getParent().add(this.panel);
+        reloadPanel();
     }
 
     @Override
@@ -56,8 +102,9 @@ public class App implements ToolWindowFactory {
         createScripts();
         Platform.setImplicitExit(false);
         this.toolWindow = toolWindow;
+
         // store object properties for action-access
         new DB(this);
-        addPanel(this.digraph);
+        setGraphPanelScene(this.digraph);
     }
 }

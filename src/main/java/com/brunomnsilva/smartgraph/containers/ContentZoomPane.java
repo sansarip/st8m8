@@ -97,6 +97,18 @@ public class ContentZoomPane extends BorderPane {
         paneSlider.setSpacing(10);
 
         slider.valueProperty().bind(this.scaleFactorProperty());
+        /*
+        slider.valueProperty().addListener(new ChangeListener<Number>() {
+
+            @Override
+            public void changed(
+                    ObservableValue<? extends Number> observableValue,
+                    Number oldValue,
+                    Number newValue) {
+
+
+            }
+        });*/
 
         return paneSlider;
     }

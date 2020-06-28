@@ -6,11 +6,15 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.sansarip.st8m8.App;
 import com.sansarip.st8m8.Utilities;
+import javafx.application.Platform;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static java.lang.Thread.sleep;
 
 public class ReadAction extends AnAction {
 
@@ -77,7 +81,7 @@ public class ReadAction extends AnAction {
             }
         }
 
-        app.addPanel(app.digraph);
+        app.setGraphPanelScene(app.digraph);
     }
 
     @Override
@@ -85,10 +89,16 @@ public class ReadAction extends AnAction {
         Project project = e.getProject();
         if (project != null) {
             String fileName = Utilities.targetFileName(project);
-            Map<String, Map<String, String>> nodeMap = Utilities.readClojureFile(fileName);
             App app = Utilities.getApp(project);
-            if (app != null) {
-                updateGraph(app, nodeMap);
+            if (app != null && !app.isLoading) {
+                app.load("Making graph");
+
+                // Read in Clojure file and update graph
+                Platform.runLater(() -> {
+                    Map<String, Map<String, String>> nodeMap = Utilities.readClojureFile(fileName);
+                    updateGraph(app, nodeMap);
+                    app.isLoading = false;
+                });
             }
         }
     }
