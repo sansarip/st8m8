@@ -73,7 +73,7 @@ public class ContentZoomPane extends BorderPane {
         content.toFront();
 
         setCenter(content);
-        setRight(createSlider());
+        //setRight(createSlider());
 
         enablePanAndZoom();
     }
