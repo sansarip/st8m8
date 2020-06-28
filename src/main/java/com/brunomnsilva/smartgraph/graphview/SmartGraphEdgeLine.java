@@ -75,8 +75,8 @@ public class SmartGraphEdgeLine<E, V> extends Line implements SmartGraphEdgeBase
     @Override
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
-        label.xProperty().bind(startXProperty().add(endXProperty()).divide(2).subtract(label.getLayoutBounds().getWidth() / 2));
-        label.yProperty().bind(startYProperty().add(endYProperty()).divide(2).add(label.getLayoutBounds().getHeight() / 1.5));  
+        label.layoutXProperty().bind(startXProperty().add(endXProperty()).divide(2).subtract(label.getPrefWidth() / 2));
+        label.layoutYProperty().bind(startYProperty().add(endYProperty()).divide(2).add(label.getLayoutBounds().getHeight() / 1.5));
     }
 
     @Override

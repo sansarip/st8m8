@@ -23,7 +23,10 @@
  */
 package com.brunomnsilva.smartgraph.graphview;
 
+import javafx.geometry.Pos;
+import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
+
 
 /**
  * A label contains text and can be attached to any {@link SmartLabelledNode}.
@@ -33,19 +36,26 @@ import javafx.scene.text.Text;
  * 
  * @author Bruno Silva
  */
-public class SmartLabel extends Text implements SmartStylableNode {
+public class SmartLabel extends TextField implements SmartStylableNode {
 
     public SmartLabel() {
     }
 
     public SmartLabel(String text) {
         super(text);
+        setAlignment(Pos.CENTER);
+    }
+
+    public SmartLabel(String text, Integer fontSize) {
+        this(text);
+        setPrefWidth(text.length() * fontSize + 2 * fontSize);
     }
 
     public SmartLabel(double x, double y, String text) {
-        super(x, y, text);
+        this(text);
+        relocate(x, y);
     }
-    
+
     @Override
     public void setStyleClass(String cssClass) {
         getStyleClass().add(cssClass);

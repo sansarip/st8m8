@@ -162,8 +162,8 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     @Override
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
-        label.xProperty().bind(controlX1Property().add(controlX2Property()).divide(2).subtract(label.getLayoutBounds().getWidth() / 2));
-        label.yProperty().bind(controlY1Property().add(controlY2Property()).divide(2).add(label.getLayoutBounds().getHeight() / 2));
+        label.layoutXProperty().bind(controlX1Property().add(controlX2Property()).divide(2).subtract(label.getPrefWidth() / 2));
+        label.layoutYProperty().bind(controlY1Property().add(controlY2Property()).divide(2).add(label.getLayoutBounds().getHeight() / 2));
     }
 
     @Override

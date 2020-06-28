@@ -12,9 +12,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import static java.lang.Thread.sleep;
 
 public class ReadAction extends AnAction {
 

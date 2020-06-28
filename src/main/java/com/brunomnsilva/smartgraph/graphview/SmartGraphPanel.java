@@ -39,6 +39,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.brunomnsilva.smartgraph.graph.*;
 import com.sansarip.st8m8.Utilities;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -47,6 +48,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -54,10 +56,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
-import com.brunomnsilva.smartgraph.graph.Graph;
-import com.brunomnsilva.smartgraph.graph.Digraph;
-import com.brunomnsilva.smartgraph.graph.Vertex;
-import com.brunomnsilva.smartgraph.graph.Edge;
 import org.apache.commons.io.IOUtils;
 
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesJavaFX.pick;
@@ -204,7 +202,25 @@ public class SmartGraphPanel<V, E> extends Pane {
                 timer.stop();
             }
         });
+    }
 
+    private class MyVertex implements Vertex<V> {
+
+        V element;
+
+        public MyVertex(V element) {
+            this.element = element;
+        }
+
+        @Override
+        public V element() {
+            return this.element;
+        }
+
+        @Override
+        public String toString() {
+            return "Vertex{" + element + '}';
+        }
     }
 
     private synchronized void runLayoutIteration() {
@@ -471,7 +487,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         if (graphProperties.getUseVertexLabel()) {
-            SmartLabel label = new SmartLabel(labelText);
+            SmartLabel label = new SmartLabel(labelText, 10);
 
             label.getStyleClass().add("vertex-label");
             this.getChildren().add(label);
@@ -494,7 +510,7 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         if (graphProperties.getUseEdgeLabel()) {
-            SmartLabel label = new SmartLabel(labelText);
+            SmartLabel label = new SmartLabel(labelText, 8);
 
             label.getStyleClass().add("edge-label");
             this.getChildren().add(label);
@@ -660,7 +676,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             getChildren().remove(attachedArrow);
         }
 
-        Text attachedLabel = e.getAttachedLabel();
+        TextField attachedLabel = e.getAttachedLabel();
         if (attachedLabel != null) {
             getChildren().remove(attachedLabel);
         }
@@ -669,7 +685,7 @@ public class SmartGraphPanel<V, E> extends Pane {
     private void removeVertice(SmartGraphVertexNode v) {
         getChildren().remove(v);
 
-        Text attachedLabel = v.getAttachedLabel();
+        TextField attachedLabel = v.getAttachedLabel();
         if (attachedLabel != null) {
             getChildren().remove(attachedLabel);
         }
@@ -955,25 +971,26 @@ public class SmartGraphPanel<V, E> extends Pane {
     private void enableDoubleClickListener() {
         setOnMouseClicked((MouseEvent mouseEvent) -> {
             if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                double x = mouseEvent.getSceneX();
+                double y = mouseEvent.getSceneY();
+                Node node = pick(SmartGraphPanel.this, x, y);
+                Boolean isBackgroundClick = node instanceof SmartGraphPanel;
                 if (mouseEvent.getClickCount() == 2) {
-                    //no need to continue otherwise
-                    if (vertexClickConsumer == null && edgeClickConsumer == null) {
-                        return;
-                    }
-
-                    Node node = pick(SmartGraphPanel.this, mouseEvent.getSceneX(), mouseEvent.getSceneY());
-                    if (node == null) {
-                        return;
-                    }
-
-                    if (node instanceof SmartGraphVertex) {
+                    if (node instanceof SmartGraphVertex && vertexClickConsumer != null) {
                         SmartGraphVertex v = (SmartGraphVertex) node;
                         vertexClickConsumer.accept(v);
-                    } else if (node instanceof SmartGraphEdge) {
+                    } else if (node instanceof SmartGraphEdge && edgeClickConsumer != null) {
                         SmartGraphEdge e = (SmartGraphEdge) node;
                         edgeClickConsumer.accept(e);
+                    } else if (isBackgroundClick) {
+                        MyVertex vertex = new MyVertex((V) "<NULL>");
+                        addVertex(new SmartGraphVertexNode(vertex, x, y,
+                                graphProperties.getVertexRadius(),
+                                graphProperties.getVertexAllowUserMove()));
                     }
-
+                }
+                if (isBackgroundClick) {
+                    node.requestFocus();
                 }
             }
         });
