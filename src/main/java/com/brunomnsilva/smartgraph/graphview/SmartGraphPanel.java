@@ -991,6 +991,7 @@ public class SmartGraphPanel<V, E> extends Pane {
                         SmartGraphEdge e = (SmartGraphEdge) node;
                         edgeClickConsumer.accept(e);
                     } else if (isBackgroundClick) {
+                        removeNodes();
                         MyVertex vertex = new MyVertex(null);
                         SmartGraphVertexNode vertexAnchor = new SmartGraphVertexNode(vertex, x, y,
                                 graphProperties.getVertexRadius(),
