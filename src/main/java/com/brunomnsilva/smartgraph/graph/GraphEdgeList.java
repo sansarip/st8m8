@@ -294,6 +294,11 @@ public class GraphEdgeList<V, E> implements Graph<V, E> {
         }
 
         @Override
+        public void setElement(V element) {
+            this.element = element;
+        }
+
+        @Override
         public String toString() {
             return "Vertex{" + element + '}';
         }

@@ -218,6 +218,11 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         @Override
+        public void setElement(V element) {
+            this.element = element;
+        }
+
+        @Override
         public String toString() {
             return "Vertex{" + element + '}';
         }
@@ -488,7 +493,10 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         if (graphProperties.getUseVertexLabel()) {
             SmartLabel label = new SmartLabel(labelText, 10);
-
+            label.textProperty().addListener(
+                    (observable, oldValue, newValue) -> {
+                        v.getUnderlyingVertex().setElement((V) newValue);
+                    });
             label.getStyleClass().add("vertex-label");
             this.getChildren().add(label);
             v.attachLabel(label);
@@ -983,10 +991,12 @@ public class SmartGraphPanel<V, E> extends Pane {
                         SmartGraphEdge e = (SmartGraphEdge) node;
                         edgeClickConsumer.accept(e);
                     } else if (isBackgroundClick) {
-                        MyVertex vertex = new MyVertex((V) "<NULL>");
-                        addVertex(new SmartGraphVertexNode(vertex, x, y,
+                        MyVertex vertex = new MyVertex(null);
+                        SmartGraphVertexNode vertexAnchor = new SmartGraphVertexNode(vertex, x, y,
                                 graphProperties.getVertexRadius(),
-                                graphProperties.getVertexAllowUserMove()));
+                                graphProperties.getVertexAllowUserMove());
+                        vertexNodes.put(vertex, vertexAnchor);
+                        addVertex(vertexAnchor);
                     }
                 }
                 if (isBackgroundClick) {
