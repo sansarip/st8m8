@@ -37,7 +37,7 @@ public class Utilities {
         return s.hasNext() ? s.next() : "";
     }
 
-    public static String resourceToUri (String fname, String resourcePath) {
+    public static String resourceToUri(String fname, String resourcePath) {
         File f = resourceToFile(fname, resourcePath);
         try {
             return f.toURI().toURL().toExternalForm();
@@ -85,7 +85,10 @@ public class Utilities {
 
     public static Map<String, Map<String, String>> readClojureFile(String fileName) {
         try {
-            String json = execCmd(String.format("./bb.sh \"%s\"", fileName)).replaceAll("\\\\\"", "\"").replaceAll("^\"+|\"+$", "");
+            String json = execCmd(String.format("./bb.sh \"%s\"", fileName))
+                    .replaceAll("\\\\\"", "\"") // \" to "
+                    .replaceAll("\\\\\\\\\"", "\\\\\"") // \\\" to \"
+                    .replaceAll("^\"+|\"+$", "");
             return toHashMap(json);
         } catch (IOException e) {
             e.printStackTrace();

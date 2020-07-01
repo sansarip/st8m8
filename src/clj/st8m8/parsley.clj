@@ -18,19 +18,18 @@
               (if (and (seq? form)
                        (= 2 (count form))
                        (= 'quote (first form)))
-                (str "'" (second form))
+                (second form)
                 form))
             m))
 
 (defn stringify [m]
-  (reduce-kv (fn [c k v]
-               (assoc c (if (string? k) k (pr-str k))
-                        (cond
-                          (map? v) (stringify v)
-                          (string? v) v
-                          :else (pr-str v))))
-             {}
-             m))
+  (postwalk (fn [form]
+              (cond
+                (string? form) (str "\"" form "\"")
+                (symbol? form) (str "'" form)
+                (not (coll? form)) (pr-str form)
+                :else form))
+            m))
 
 (defn get-map [forms]
   (cond
