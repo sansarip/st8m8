@@ -8,15 +8,9 @@ import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.openapi.wm.ex.ToolWindowEx;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentManager;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -28,14 +22,12 @@ import javax.swing.*;
 
 import java.awt.*;
 
-import static com.sansarip.st8m8.Utilities.createScripts;
-import static com.sansarip.st8m8.Utilities.resourceToUri;
-
+import static com.sansarip.st8m8.Utilities.*;
 
 public class App implements ToolWindowFactory {
     public Digraph digraph;
     public Boolean isLoading = false;
-    SmartGraphPanel graphView = null;
+    public SmartGraphPanel graphView = null;
     JFXPanel panel;
     ToolWindow toolWindow = null;
     private final SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
@@ -106,5 +98,7 @@ public class App implements ToolWindowFactory {
         // store object properties for action-access
         new DB(this);
         setGraphPanelScene(this.digraph);
+
+        Utilities.watchAndLoad(project);
     }
 }

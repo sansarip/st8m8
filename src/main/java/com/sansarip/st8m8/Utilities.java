@@ -1,7 +1,10 @@
 package com.sansarip.st8m8;
 
+import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
@@ -10,6 +13,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
+import javafx.application.Platform;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
@@ -60,8 +64,11 @@ public class Utilities {
     }
 
     public static String targetFileName(Project project) {
-        Document currentDoc = Objects.requireNonNull(FileEditorManager.getInstance(project).getSelectedTextEditor()).getDocument();
-        VirtualFile currentFile = FileDocumentManager.getInstance().getFile(currentDoc);
+        FileEditorManager fem = FileEditorManager.getInstance(project);
+        VirtualFile[] virtualFiles = FileEditorManager.getInstance(project).getSelectedFiles();
+        //Document currentDoc = Objects.requireNonNull(FileEditorManager.getInstance(project).getSelectedTextEditor()).getDocument();
+        //VirtualFile currentFile = FileDocumentManager.getInstance().getFile(currentDoc);
+        VirtualFile currentFile = virtualFiles[0];
         if (currentFile != null) {
             return currentFile.getPath();
         }
@@ -94,6 +101,61 @@ public class Utilities {
             e.printStackTrace();
         }
         return new HashMap<>();
+    }
+
+
+    public static void updateGraph(App app, Map<String, Map<String, String>> nodeMap) {
+        app.digraph = new DigraphEdgeList<>();
+
+        // vertices
+        for (Map.Entry<String, Map<String, String>> nodeMapEntry : nodeMap.entrySet()) {
+            String k = nodeMapEntry.getKey();
+            app.digraph.insertVertex(k);
+        }
+
+        // edges
+        for (Map.Entry<String, Map<String, String>> nodeMapEntry : nodeMap.entrySet()) {
+            String k = nodeMapEntry.getKey();
+            for (Map.Entry<String, String> edgeEntry : nodeMapEntry.getValue().entrySet()) {
+                app.digraph.insertEdge(k, edgeEntry.getValue(), new EdgeLabel(k, edgeEntry.getValue(), edgeEntry.getKey()));
+            }
+        }
+
+        app.setGraphPanelScene(app.digraph);
+    }
+
+    public static void loadClojureFile(Project project) {
+        if (project != null) {
+            String fileName = targetFileName(project);
+            App app = getApp(project);
+            if (app != null && !app.isLoading) {
+                app.load("Making graph");
+
+                // Read in Clojure file and update graph
+                Platform.runLater(() -> {
+                    Map<String, Map<String, String>> nodeMap = readClojureFile(fileName);
+                    updateGraph(app, nodeMap);
+                    app.isLoading = false;
+                });
+            }
+        }
+    }
+
+    public static void watchAndLoad(Project project) {
+        new Thread(() -> {
+            String fileName = "";
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                    if (project != null && !fileName.equals(targetFileName(project))) {
+                        loadClojureFile(project);
+                        fileName = targetFileName(project);
+                    }
+                } catch (Exception ignored) {
+                    ignored.printStackTrace();
+                }
+            }
+        }).start();
     }
 }
 

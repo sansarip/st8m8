@@ -1,7 +1,6 @@
 <idea-plugin>
     <id>sansarip.com.sansarip.st8m8</id>
-    <name>Plugin display name here</name>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <name>St8M8</name>
 
     <description><![CDATA[
     Enter short description for your plugin here.<br>
@@ -26,4 +25,10 @@
             <keyboard-shortcut keymap="$default" first-keystroke="meta alt 8"/>
         </action>
     </actions>
+
+    <project-components>
+        <component>
+            <implementation-class>com.sansarip.st8m8.listeners.FileWatcher</implementation-class>
+        </component>
+    </project-components>
 </idea-plugin>
