@@ -13,10 +13,18 @@ repositories {
     maven {
         url "https://repo.clojars.org"
     }
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile (name:'javafx.base', ext:'jar')
+    compile (name:'javafx.graphics', ext:'jar')
+    compile (name:'javafx.controls', ext:'jar')
+    compile (name:'javafx.fxml', ext:'jar')
+    compile (name:'javafx.swing', ext:'jar')
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
