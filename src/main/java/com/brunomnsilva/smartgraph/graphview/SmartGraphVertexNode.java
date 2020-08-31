@@ -88,7 +88,7 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
             enableDrag();
         }
     }
-    
+
     @Override
     public void setStyleClass(String cssClass) {
         getStyleClass().add(cssClass);
@@ -277,7 +277,7 @@ public class SmartGraphVertexNode<T> extends Circle implements SmartGraphVertex<
         });
 
         setOnMouseDragged((MouseEvent mouseEvent) -> {
-            if (mouseEvent.isPrimaryButtonDown()) {
+            if (mouseEvent.isPrimaryButtonDown() && !SmartGraphPanel.creatingNewEdge) {
                 double newX = mouseEvent.getX() + dragDelta.x;
                 double x = boundCenterCoordinate(newX, 0, getParent().getLayoutBounds().getWidth());
                 setCenterX(x);

@@ -53,7 +53,7 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
 
     private static final double MAX_EDGE_CURVE_ANGLE = 20;
 
-    private final Edge<E, V> underlyingEdge;
+    private Edge<E, V> underlyingEdge;
 
     private final SmartGraphVertexNode<V> inbound;
     private final SmartGraphVertexNode<V> outbound;
@@ -162,6 +162,12 @@ public class SmartGraphEdgeCurve<E, V> extends CubicCurve implements SmartGraphE
     @Override
     public void attachLabel(SmartLabel label) {
         this.attachedLabel = label;
+        /*
+        label.setOnInputMethodTextChanged(
+                inputMethodEvent -> {
+                    underlyingEdge = (Edge<E, V>) new MyEdge(inputMethodEvent.getCommitted(), ((SmartGraphVertexNode) inbound).getUnderlyingVertex(), ((SmartGraphVertexNode) outbound).getUnderlyingVertex());
+                });
+         */
         label.layoutXProperty().bind(controlX1Property().add(controlX2Property()).divide(2).subtract(label.getPrefWidth() / 2));
         label.layoutYProperty().bind(controlY1Property().add(controlY2Property()).divide(2).add(label.getLayoutBounds().getHeight() / 2));
     }

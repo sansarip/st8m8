@@ -24,9 +24,6 @@
 package com.brunomnsilva.smartgraph.graphview;
 
 
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +37,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.brunomnsilva.smartgraph.graph.*;
-import com.sansarip.st8m8.Utilities;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -50,13 +46,13 @@ import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
-import org.apache.commons.io.IOUtils;
 
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesJavaFX.pick;
 import static com.brunomnsilva.smartgraph.graphview.UtilitiesPoint2D.attractiveForce;
@@ -83,7 +79,6 @@ import java.util.concurrent.FutureTask;
  * @author brunomnsilva
  */
 public class SmartGraphPanel<V, E> extends Pane {
-
     /* 
     CONFIGURATION PROPERTIES
      */
@@ -93,12 +88,16 @@ public class SmartGraphPanel<V, E> extends Pane {
     INTERNAL DATA STRUCTURE
      */
     private final Graph<V, E> theGraph;
+    private Node selectedNode;
+    static boolean creatingNewEdge = false;
+    private Node nodeHovered;
     private final SmartPlacementStrategy placementStrategy;
     private final Map<Vertex<V>, SmartGraphVertexNode<V>> vertexNodes;
     private final Map<Edge<E, V>, SmartGraphEdgeBase> edgeNodes;
     private final Map<Tuple<SmartGraphVertexNode>, Integer> placedEdges = new HashMap<>();
     private boolean initialized = false;
     private final boolean edgesWithArrows;
+    private SmartGraphVertexNode sourceVertexNode;
     /*
     INTERACTION WITH VERTICES AND EDGES
      */
@@ -183,7 +182,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         initNodes();
 
-        enableDoubleClickListener();
+        enableListeners();
 
         //automatic layout initializations        
         timer = new AnimationTimer() {
@@ -484,7 +483,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         String labelText = (v.getUnderlyingVertex().element() != null) ?
                 v.getUnderlyingVertex().element().toString() :
-                "<NULL>";
+                "nil";
 
         if (graphProperties.getUseVertexTooltip()) {
             Tooltip t = new Tooltip(labelText);
@@ -510,7 +509,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
         String labelText = (edge.element() != null) ?
                 edge.element().toString() :
-                "<NULL>";
+                "nil";
 
         if (graphProperties.getUseEdgeTooltip()) {
             Tooltip t = new Tooltip(labelText);
@@ -697,6 +696,12 @@ public class SmartGraphPanel<V, E> extends Pane {
         if (attachedLabel != null) {
             getChildren().remove(attachedLabel);
         }
+
+        edgeNodes.forEach((Edge e, SmartGraphEdgeBase eb) -> {
+            if (e.vertices()[0].equals(v.getUnderlyingVertex()) || e.vertices()[1].equals(v.getUnderlyingVertex())) {
+                removeEdge(eb);
+            }
+        });
     }
 
     /**
@@ -708,7 +713,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             if (vertexNode != null) {
                 SmartLabel label = vertexNode.getAttachedLabel();
                 if (label != null) {
-                    label.setText(v.element() != null ? v.element().toString() : "<NULL>");
+                    label.setText(v.element() != null ? v.element().toString() : "nil");
                 }
 
             }
@@ -719,7 +724,7 @@ public class SmartGraphPanel<V, E> extends Pane {
             if (edgeNode != null) {
                 SmartLabel label = edgeNode.getAttachedLabel();
                 if (label != null) {
-                    label.setText(e.element() != null ? e.element().toString() : "<NULL>");
+                    label.setText(e.element() != null ? e.element().toString() : "nil");
                 }
             }
         });
@@ -962,6 +967,15 @@ public class SmartGraphPanel<V, E> extends Pane {
         return null;
     }
 
+    public void deleteSelected() {
+        if (selectedNode != null && selectedNode instanceof SmartGraphEdge) {
+            removeEdge((SmartGraphEdgeBase) selectedNode);
+        }
+        if (selectedNode != null && selectedNode instanceof SmartGraphVertex) {
+            removeVertice((SmartGraphVertexNode) selectedNode);
+        }
+    }
+
     /**
      * Loads the default stylesheet and applies the .graph class to this panel.
      */
@@ -969,41 +983,100 @@ public class SmartGraphPanel<V, E> extends Pane {
         this.getStyleClass().add("graph");
     }
 
+    private void unselectVertexAndEdge() {
+        if (selectedNode != null && selectedNode instanceof SmartGraphVertex) {
+            selectedNode.setStyle("-fx-stroke: #131F33 !important;");
+        }
+        if (selectedNode != null && selectedNode instanceof SmartGraphEdge) {
+            selectedNode.setStyle("-fx-stroke: #131F33 !important;");
+            ((SmartGraphEdgeBase) selectedNode).getAttachedArrow().setStyle("-fx-stroke: #131F33 !important;");
+        }
+    }
+
+    private void cleanUp(Node n) {
+        unselectVertexAndEdge();
+        if (n != null) {
+            n.requestFocus();
+        }
+        selectedNode = null;
+    }
+
+    private SmartGraphVertexNode createVertexNode(Double x, Double y) {
+        MyVertex vertex = new MyVertex(null);
+        SmartGraphVertexNode vertexAnchor = new SmartGraphVertexNode(vertex, x, y,
+                graphProperties.getVertexRadius(),
+                graphProperties.getVertexAllowUserMove());
+        vertexNodes.put(vertex, vertexAnchor);
+        return vertexAnchor;
+    }
+
+    private SmartGraphVertexNode createAndAddVertexNode(Double x, Double y) {
+        SmartGraphVertexNode vn = createVertexNode(x, y);
+        addVertex(vn);
+        return vn;
+    }
+
+    private void createAndAddEdgeNode(SmartGraphVertexNode inbound) {
+        MyEdge edge = new MyEdge(null, sourceVertexNode.getUnderlyingVertex(), inbound.getUnderlyingVertex());
+        SmartGraphEdgeBase edgeNode = createEdge((Edge<E, V>) edge, inbound, sourceVertexNode);
+        SmartArrow arrow = new SmartArrow();
+        edgeNode.attachArrow(arrow);
+        addEdge(edgeNode, (Edge<E, V>) edge);
+        this.getChildren().add(arrow);
+        sourceVertexNode = null;
+    }
 
     /**
-     * Enables the double click action on this pane.
+     * Enables the listeners of this pane
      * <p>
-     * This method identifies the node that was clicked and, if any, calls the
-     * appropriate consumer, i.e., vertex or edge consumers.
+     * This method identifies the node that was clicked and performs the appropriate actions
      */
-    private void enableDoubleClickListener() {
+    private void enableListeners() {
         setOnMouseClicked((MouseEvent mouseEvent) -> {
             if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                 double x = mouseEvent.getSceneX();
                 double y = mouseEvent.getSceneY();
                 Node node = pick(SmartGraphPanel.this, x, y);
                 Boolean isBackgroundClick = node instanceof SmartGraphPanel;
-                if (mouseEvent.getClickCount() == 2) {
-                    if (node instanceof SmartGraphVertex && vertexClickConsumer != null) {
-                        SmartGraphVertex v = (SmartGraphVertex) node;
-                        vertexClickConsumer.accept(v);
-                    } else if (node instanceof SmartGraphEdge && edgeClickConsumer != null) {
-                        SmartGraphEdge e = (SmartGraphEdge) node;
-                        edgeClickConsumer.accept(e);
-                    } else if (isBackgroundClick) {
-                        removeNodes();
-                        MyVertex vertex = new MyVertex(null);
-                        SmartGraphVertexNode vertexAnchor = new SmartGraphVertexNode(vertex, x, y,
-                                graphProperties.getVertexRadius(),
-                                graphProperties.getVertexAllowUserMove());
-                        vertexNodes.put(vertex, vertexAnchor);
-                        addVertex(vertexAnchor);
-                    }
+                if (node != null) {
+                    cleanUp(node);
                 }
-                if (isBackgroundClick) {
-                    node.requestFocus();
+                if (mouseEvent.getClickCount() == 2) {
+                    if (isBackgroundClick) {
+                        createAndAddVertexNode(x, y);
+                    }
+                } else if (node instanceof SmartGraphVertex) {
+                    node.setStyle("-fx-stroke: #CF6F46 !important; -fx-fill: #FFF8BE !important;");
+                    selectedNode = node;
+                } else if (node instanceof SmartGraphEdge) {
+                    node.setStyle("-fx-stroke: #CF6F46 !important");
+                    ((SmartGraphEdgeBase) node).getAttachedArrow().setStyle("-fx-stroke: #CF6F46 !important;");
+                    selectedNode = node;
                 }
             }
+        });
+        setOnKeyPressed((KeyEvent keyEvent) -> {
+            if (keyEvent.getCode().equals(KeyCode.ALT) && nodeHovered instanceof SmartGraphVertex) {
+                sourceVertexNode = (SmartGraphVertexNode) nodeHovered;
+                creatingNewEdge = true;
+            }
+        });
+
+        setOnKeyReleased((KeyEvent keyEvent) -> {
+            if (creatingNewEdge && keyEvent.getCode().equals(KeyCode.ALT)) {
+                if (nodeHovered instanceof SmartGraphVertex) {
+                    createAndAddEdgeNode((SmartGraphVertexNode) nodeHovered);
+                }
+                creatingNewEdge = false;
+            } else if (keyEvent.getCode().equals(KeyCode.DELETE)) {
+                deleteSelected();
+            }
+        });
+
+        setOnMouseMoved((MouseEvent mouseEvent) -> {
+            double x = mouseEvent.getSceneX();
+            double y = mouseEvent.getSceneY();
+            nodeHovered = pick(SmartGraphPanel.this, x, y);
         });
     }
 
