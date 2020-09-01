@@ -18,6 +18,11 @@
         <toolWindow id="St8m8" anchor="right" icon="/assets/ico.svg" factoryClass="com.sansarip.st8m8.App"/>
     </extensions>
 
+    <applicationListeners>
+        <listener class="com.sansarip.st8m8.listeners.FileContentListener"
+                  topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
+    </applicationListeners>
+
     <actions>
         <action id="com.sansarip.st8m8.actions.ReadAction" class="com.sansarip.st8m8.actions.ReadAction"
                 text="File -&gt; St8m8" description="Loads a file into the St8m8 tool window">
@@ -25,10 +30,4 @@
             <keyboard-shortcut keymap="$default" first-keystroke="meta alt 8"/>
         </action>
     </actions>
-
-    <project-components>
-        <component>
-            <implementation-class>com.sansarip.st8m8.listeners.FileWatcher</implementation-class>
-        </component>
-    </project-components>
 </idea-plugin>
