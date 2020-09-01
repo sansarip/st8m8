@@ -95,10 +95,11 @@ public class App implements ToolWindowFactory {
         Platform.setImplicitExit(false);
         this.toolWindow = toolWindow;
 
-        // store object properties for action-access
+        // Store object properties for action-access
         new DB(this);
         setGraphPanelScene(this.digraph);
 
+        // Watch for changes in file focus
         Utilities.watchAndLoad(project);
     }
 }

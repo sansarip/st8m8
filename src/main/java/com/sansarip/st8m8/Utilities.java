@@ -141,13 +141,23 @@ public class Utilities {
         }
     }
 
+    public static Boolean loadableFile(Project project, String fileName, Boolean equals) {
+        return project != null &&
+                ((fileName.endsWith(".edn") ||
+                        fileName.endsWith(".clj") ||
+                        fileName.endsWith(".cljs") ||
+                        fileName.endsWith(".cljc")) ||
+                        fileName.equals("")) &&
+                (equals == fileName.equals(targetFileName(project)));
+    }
+
     public static void watchAndLoad(Project project) {
         new Thread(() -> {
             String fileName = "";
             while (true) {
                 try {
                     Thread.sleep(1000);
-                    if (project != null && !fileName.equals(targetFileName(project))) {
+                    if (loadableFile(project, fileName, false)) {
                         loadClojureFile(project);
                         fileName = targetFileName(project);
                     }
