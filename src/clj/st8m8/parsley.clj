@@ -44,7 +44,7 @@
     :else nil))
 
 (defn parse
-  "Parses Clojure data and returns a serialized Java HashMap"
+  "Parses Clojure data and returns a JSON string"
   [input]
   (let [[f & r :as forms] (read-string (str "[" input "]"))]
     (if-let [result (get-map
