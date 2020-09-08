@@ -9,5 +9,4 @@
   :test-paths ["test/clj"]
   :aliases {"exec:template" ["exec" "-p" "templater.clj"]}
   :repl-options {:init-ns st8m8.parsley}
-  :profiles {:dev {:dependencies [[org.clojure/test.check "0.10.0"]
-                                  [tupelo "0.9.201"]]}})
+  :profiles {:dev {:dependencies [[org.clojure/test.check "0.10.0"]]}})
