@@ -53,4 +53,4 @@
                         r forms
                         :else nil))]
       (-> result treat-symbols stringify ->json)
-      "")))
+      "{}")))

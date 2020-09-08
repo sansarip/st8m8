@@ -20,13 +20,8 @@
          n (->> pk (random-sample 0.5) first)]
      (assoc c k (or n (first pk))))))
 
-(defn fmsg [e a]
-  (str "Expected: " (pprint* e)
-       "\n"
-       "Actual: " (pprint* a)
-       "\n"))
-
-(defn is= [e a]
-  (or (= e a)
-      (println (fmsg e a))))
-
+(defn forms->str [forms]
+  (->> forms
+       (map prn-str*)
+       (interpose "\n")
+       (apply str)))
