@@ -2,6 +2,7 @@ package com.sansarip.st8m8;
 
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -152,20 +153,23 @@ public class Utilities {
     }
 
     public static void watchAndLoad(Project project) {
-        new Thread(() -> {
-            String fileName = "";
-            while (true) {
-                try {
-                    Thread.sleep(1000);
-                    if (loadableFile(project, fileName, false)) {
-                        loadClojureFile(project);
-                        fileName = targetFileName(project);
+        ApplicationManager.getApplication().invokeLater(() -> {
+            new Thread(() -> {
+                String fileName = "";
+                while (true) {
+                    try {
+                        Thread.sleep(1000);
+                        if (loadableFile(project, fileName, false)) {
+                            loadClojureFile(project);
+                            fileName = targetFileName(project);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception ignored) {
-                    ignored.printStackTrace();
                 }
-            }
-        }).start();
+            }).start();
+        });
+
     }
 }
 
