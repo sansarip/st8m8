@@ -3,10 +3,11 @@
             [st8m8.test-utilities :as tu]))
 
 (def fsm-gen
-  (->> (gen/map gen/keyword (gen/return nil))
-       (gen/map (gen/one-of [gen/keyword gen/symbol]))
-       (gen/fmap tu/connect-edges)
-       (gen/fmap #(with-meta % {:st8m8 true}))))
+  (let [key-gen (gen/one-of [gen/keyword gen/symbol])]
+    (->> (gen/map key-gen (gen/return nil))
+         (gen/map key-gen)
+         (gen/fmap tu/connect-edges)
+         (gen/fmap #(with-meta % {:st8m8 true})))))
 
 ;; Always adds first-form, even when forms are empty
 (defn before-first-fsm
@@ -29,6 +30,23 @@
   (->> content-gen
        (gen/tuple (gen/return 'def) gen/symbol-ns)
        (gen/fmap (comp reverse #(into '() %)))))
+
+;; TODO: Refactor this
+(def quoted-fsm
+  (gen/fmap (fn [fsm]
+              (reduce-kv
+                (fn [c k v]
+                  (assoc c (list 'quote k)
+                           (reduce-kv (fn [c k v]
+                                        (assoc c
+                                          (list 'quote k)
+                                          (list 'quote v)))
+                                      {}
+                                      v)))
+                {}
+                fsm))
+            fsm-gen))
+
 
 (def a-common-generator (gen/one-of [gen/keyword
                                      gen/string-ascii
@@ -68,7 +86,3 @@
                    (vector (tu/forms->str forms)
                            forms
                            first-fsm)))))
-
-
-
-

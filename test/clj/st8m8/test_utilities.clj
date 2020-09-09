@@ -25,3 +25,6 @@
        (map prn-str*)
        (interpose "\n")
        (apply str)))
+
+(defn not-quoted? [obj]
+  (or (not (seq? obj)) (not= (first obj) 'quote)))

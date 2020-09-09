@@ -8,12 +8,11 @@
 (defn ->json [m]
   (json/generate-string m {:escape-non-ascii true}))
 
-;; helpful testing utility
+;; Helpful testing utility
 (defn <-json [s]
   (json/parse-string s true))
 
-;; TODO: generify this for .edn files
-(defn treat-symbols [m]
+(defn treat-quoted-symbols [m]
   (postwalk (fn [form]
               (if (and (seq? form)
                        (= 2 (count form))
@@ -22,6 +21,7 @@
                 form))
             m))
 
+;; TODO: Generify this for .edn files
 (defn stringify [m]
   (postwalk (fn [form]
               (cond
@@ -34,7 +34,7 @@
 (defn get-map [forms]
   (cond
     (map? forms) forms
-    ;; must check if ^:st8m8 metadata exists on a map if forms is a form or a vector of forms
+    ;; Must check if ^:st8m8 metadata exists on a map if forms is a form or a vector of forms
     (list? forms) (let [m (last forms)]
                     (if (st8m8? m) (get-map m)))
     (vector? forms) (->> forms
@@ -52,5 +52,5 @@
                         (and f (not r)) f
                         r forms
                         :else nil))]
-      (-> result treat-symbols stringify ->json)
+      (-> result treat-quoted-symbols stringify ->json)
       "{}")))

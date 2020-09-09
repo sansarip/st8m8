@@ -21,5 +21,16 @@
 
 (deftest test-get-map-returns-nil-for-empty-vector
   (testing "get-map returns nil for an empty vector"
-   (is (= nil (parsley/get-map [])))))
+    (is (= nil (parsley/get-map [])))))
+
+(defspec test-treat-quoted-symbols-removes-quoting-from-states 20
+         (for-all [fsm my-gen/quoted-fsm]
+                  (let [treated-fsm (parsley/treat-quoted-symbols fsm)]
+                    (testing "Every outbound-state, transition, and inbound-state is not quoted"
+                      (is (->> treated-fsm
+                               vals
+                               (map vals)
+                               (conj [(keys fsm)])
+                               flatten
+                               (every? tu/not-quoted?)))))))
 
