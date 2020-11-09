@@ -5,7 +5,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 
 /**
- * Stores the st8m8 tool window factory
+ * Stores the St8M8 tool window factory
  * and allows tool window instances to be referenced from Actions
  */
 public class AppRef extends SimpleToolWindowPanel {

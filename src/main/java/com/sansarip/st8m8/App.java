@@ -26,7 +26,8 @@ import java.util.HashMap;
 import static com.sansarip.st8m8.Utilities.*;
 
 /**
- * Creates and manages st8m8 tool windows
+ * Creates and manages St8M8 tool windows.
+ * Will be instantiated once by IntelliJ, regardless of how many open windows/projects there are.
  */
 public class App implements ToolWindowFactory {
     public Digraph digraph;
@@ -107,6 +108,9 @@ public class App implements ToolWindowFactory {
         reloadPanel(thisApp);
     }
 
+    /**
+     * Called by IntelliJ once for each project to instantiate tool window content panels
+     */
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         createScripts();
