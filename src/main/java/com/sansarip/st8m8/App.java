@@ -43,11 +43,14 @@ public class App implements ToolWindowFactory {
         this.apps = new HashMap<>();
     }
 
+    public App(ToolWindow toolWindow) {
+        this.panel =new JFXPanel();
+        this.digraph = new DigraphEdgeList();
+        this.toolWindow = toolWindow;
+    }
+
     private App initialize(ToolWindow toolWindow, String appId) {
-        App newApp = new App();
-        newApp.panel = new JFXPanel();
-        newApp.digraph = new DigraphEdgeList();
-        newApp.toolWindow = toolWindow;
+        App newApp = new App(toolWindow);
         this.apps.put(appId, newApp);
         return newApp;
     }
