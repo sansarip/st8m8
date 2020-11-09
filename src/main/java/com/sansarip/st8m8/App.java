@@ -21,20 +21,35 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 
 import java.awt.*;
+import java.util.HashMap;
 
 import static com.sansarip.st8m8.Utilities.*;
 
+/**
+ * Creates and manages st8m8 tool windows
+ */
 public class App implements ToolWindowFactory {
     public Digraph digraph;
     public Boolean isLoading = false;
     public SmartGraphPanel graphView = null;
+    // This stores App instance references for different open projects
+    public HashMap<String, App> apps;
     JFXPanel panel;
     ToolWindow toolWindow = null;
+
     private final SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
 
     public App() {
-        this.digraph = new DigraphEdgeList();
-        this.panel = new JFXPanel();
+        this.apps = new HashMap<>();
+    }
+
+    private App initialize(ToolWindow toolWindow, String appId) {
+        App newApp = new App();
+        newApp.panel = new JFXPanel();
+        newApp.digraph = new DigraphEdgeList();
+        newApp.toolWindow = toolWindow;
+        this.apps.put(appId, newApp);
+        return newApp;
     }
 
     private Scene newScene(Parent view) {
@@ -44,22 +59,22 @@ public class App implements ToolWindowFactory {
         return scene;
     }
 
-    private void setScene(Parent view) {
-        this.panel.setScene(newScene(view));
+    private void setScene(Parent view, App thisApp) {
+        thisApp.panel.setScene(newScene(view));
     }
 
-    private void reloadPanel() {
-        JComponent component = this.toolWindow.getComponent();
-        component.getParent().add(this.panel);
+    private void reloadPanel(App thisApp) {
+        JComponent component = thisApp.toolWindow.getComponent();
+        component.getParent().add(thisApp.panel);
     }
 
-    private void setProperties(Digraph dg, SmartGraphPanel graphView) {
-        this.digraph = dg;
-        this.graphView = graphView;
+    private void setProperties(Digraph dg, SmartGraphPanel graphView, App thisApp) {
+        thisApp.digraph = dg;
+        thisApp.graphView = graphView;
     }
 
-    public void load(String message) {
-        this.isLoading = true;
+    public void load(String message, App thisApp) {
+        thisApp.isLoading = true;
         Platform.runLater(() -> {
             VBox layout = new VBox(10);
             layout.setAlignment(Pos.CENTER);
@@ -73,31 +88,32 @@ public class App implements ToolWindowFactory {
             layout.getChildren().addAll(loadingMessage, loadingSpinner);
             layout.getStyleClass().add("container");
 
-            setScene(layout);
+            setScene(layout, thisApp);
         });
         // This must remain outside of the runLater
-        reloadPanel();
+        reloadPanel(thisApp);
     }
 
-    public void setGraphPanelScene(Digraph dg) {
+    public void setGraphPanelScene(Digraph dg, App thisApp) {
         Platform.runLater(() -> {
-            SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(dg, this.strategy);
-            setProperties(dg, graphView);
-            setScene(new Container(graphView));
+            SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(dg, thisApp.strategy);
+            setProperties(dg, graphView, thisApp);
+            setScene(new Container(graphView), thisApp);
             graphView.init();
         });
-        reloadPanel();
+        reloadPanel(thisApp);
     }
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         createScripts();
+        String projectName = project.getName();
+        App thisApp = initialize(toolWindow, projectName);
         Platform.setImplicitExit(false);
-        this.toolWindow = toolWindow;
 
         // Store object properties for action-access
-        new DB(this);
-        setGraphPanelScene(this.digraph);
+        new AppRef(this, projectName);
+        setGraphPanelScene(thisApp.digraph, thisApp);
 
         // Watch for changes in file focus
         Utilities.watchAndLoad(project);

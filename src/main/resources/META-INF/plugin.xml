@@ -15,7 +15,10 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="St8m8" anchor="right" icon="/assets/ico.svg" factoryClass="com.sansarip.st8m8.App"/>
+        <toolWindow id="St8m8"
+                    anchor="right"
+                    icon="/assets/ico.svg"
+                    factoryClass="com.sansarip.st8m8.App"/>
     </extensions>
 
     <applicationListeners>
