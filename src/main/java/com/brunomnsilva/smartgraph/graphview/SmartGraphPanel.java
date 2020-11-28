@@ -677,6 +677,7 @@ public class SmartGraphPanel<V, E> extends Pane {
 
     private void removeEdge(SmartGraphEdgeBase e) {
         getChildren().remove((Node) e);
+        this.edgeNodes.remove(e.getUnderlyingEdge());
 
         SmartArrow attachedArrow = e.getAttachedArrow();
         if (attachedArrow != null) {
@@ -690,7 +691,9 @@ public class SmartGraphPanel<V, E> extends Pane {
     }
 
     private void removeVertice(SmartGraphVertexNode v) {
+        Vertex underlyingVertex = v.getUnderlyingVertex();
         getChildren().remove(v);
+        this.vertexNodes.remove(underlyingVertex);
 
         TextField attachedLabel = v.getAttachedLabel();
         if (attachedLabel != null) {
@@ -698,8 +701,9 @@ public class SmartGraphPanel<V, E> extends Pane {
         }
 
         edgeNodes.forEach((Edge e, SmartGraphEdgeBase eb) -> {
-            if (e.vertices()[0].equals(v.getUnderlyingVertex()) || e.vertices()[1].equals(v.getUnderlyingVertex())) {
+            if (e.vertices()[0].equals(underlyingVertex) || e.vertices()[1].equals(underlyingVertex)) {
                 removeEdge(eb);
+                this.edgeNodes.remove(e);
             }
         });
     }
