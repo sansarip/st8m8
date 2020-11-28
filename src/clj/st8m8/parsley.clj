@@ -44,7 +44,7 @@
     :else nil))
 
 (defn parse
-  "Parses Clojure data and returns a JSON string"
+  "Parses Clojure data and returns a JSON string, symbols are quoted e.g. 'symbol"
   [input]
   (let [[f & r :as forms] (read-string (str "[" input "]"))]
     (if-let [result (get-map
