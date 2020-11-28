@@ -66,23 +66,25 @@
    (with-metadata-gen expression-gen false)))
 
 (defn forms-gen
-  ([& {:keys [first-form-gen fsm?]
-       :or   {fsm? true}}]
-   (cond-> (gen/one-of (cond-> [(with-metadata-gen gen/any)]
-                               fsm? (conj fsm-gen)))
+  [& {:keys [first-form-gen fsm?]
+      :or   {fsm? true}}]
+  (cond-> (gen/one-of (cond-> [(with-metadata-gen gen/any)]
+                              fsm? (conj fsm-gen)))
 
-           '-> def-form-gen
-           '-> gen/vector
-           '-> gen/not-empty
-           (gen/generator? first-form-gen) (->> (gen/tuple first-form-gen)
-                                                (gen/fmap before-first-fsm))))
-  ([] (forms-gen nil)))
+          '-> def-form-gen
+          '-> gen/vector
+          '-> gen/not-empty
+          (gen/generator? first-form-gen) (->> (gen/tuple first-form-gen)
+                                               (gen/fmap before-first-fsm))))
 
-(def forms-str-gen
-  (->> fsm-gen
-       def-form-gen
-       (forms-gen :first-form-gen)
-       (gen/fmap (fn [[first-fsm forms]]
-                   (vector (tu/forms->str forms)
-                           forms
-                           first-fsm)))))
+(defn forms-str-gen [& {fsm? :fsm?
+                        :or  {fsm? true}}]
+  (gen/fmap (fn [[first-fsm forms :as forms*]]
+              (let [forms (if fsm? forms forms*)]
+                [(tu/forms->str forms)
+                 forms
+                 first-fsm]))
+            (apply forms-gen
+                   (if fsm?
+                     [:first-form-gen (def-form-gen fsm-gen)]
+                     [:fsm? false]))))

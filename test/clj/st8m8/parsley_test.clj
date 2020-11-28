@@ -12,7 +12,7 @@
 
 (defspec test-get-map-returns-first-st8m8-map
   20
-  (for-all [[_forms-str forms [_ _ expected :as _first-fsm-form]] my-gen/forms-str-gen]
+  (for-all [[_forms-str forms [_ _ expected :as _first-fsm-form]] (my-gen/forms-str-gen)]
     (testing "get-map returns the first valid fsm"
       (is (= expected (parsley/get-map forms))))))
 
@@ -37,4 +37,20 @@
                  (conj [(keys fsm)])
                  flatten
                  (every? tu/not-quoted?)))))))
+
+(defspec test-parse-returns-json-with-same-length
+  20
+  (for-all [[forms-str _ [_ _ fsm]] (my-gen/forms-str-gen)]
+    (let [json (parsley/parse forms-str)]
+      (testing "The resulting json has the same length as the input map"
+        (is (= (count fsm))
+            (= (count (json/parse-string json))))))))
+
+(deftest test-parse-returns-empty-map-json-for-empty-str
+  (= "{}" (parsley/parse "")))
+
+(defspec test-parse-returns-empty-map-json-for-non-maps
+  20
+  (for-all [[forms-str] (my-gen/forms-str-gen :fsm? false)]
+    (= "{}" (parsley/parse forms-str))))
 
