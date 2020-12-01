@@ -14,17 +14,17 @@
   20
   (for-all [[_forms-str forms [_ _ expected :as _first-fsm-form]] (my-gen/forms-str-gen)]
     (testing "get-map returns the first valid fsm"
-      (is (= expected (parsley/get-map forms))))))
+      (is (= expected (parsley/get-st8m8-map forms))))))
 
 (defspec test-get-map-returns-nil-when-no-st8m8-map
   20
   (for-all [forms (my-gen/forms-gen :fsm? false)]
     (testing "get-map returns nil"
-      (is (= nil (parsley/get-map forms))))))
+      (is (= nil (parsley/get-st8m8-map forms))))))
 
 (deftest test-get-map-returns-nil-for-empty-vector
   (testing "get-map returns nil for an empty vector"
-    (is (= nil (parsley/get-map [])))))
+    (is (= nil (parsley/get-st8m8-map [])))))
 
 (defspec test-treat-quoted-symbols-removes-quoting-from-states
   20
@@ -38,19 +38,23 @@
                  flatten
                  (every? tu/not-quoted?)))))))
 
-(defspec test-parse-returns-json-with-same-length
+(defspec test-find-returns-json-with-same-length
   20
   (for-all [[forms-str _ [_ _ fsm]] (my-gen/forms-str-gen)]
-    (let [json (parsley/parse forms-str)]
+    (let [json (parsley/find-fsm forms-str)]
       (testing "The resulting json has the same length as the input map"
         (is (= (count fsm))
             (= (count (json/parse-string json))))))))
 
-(deftest test-parse-returns-empty-map-json-for-empty-str
-  (= "{}" (parsley/parse "")))
+(deftest test-find-returns-empty-map-json-for-empty-str
+  (= "{}" (parsley/find-fsm "")))
 
-(defspec test-parse-returns-empty-map-json-for-non-maps
+(defspec test-find-returns-empty-map-json-for-non-maps
   20
   (for-all [[forms-str] (my-gen/forms-str-gen :fsm? false)]
-    (= "{}" (parsley/parse forms-str))))
+    (= "{}" (parsley/find-fsm forms-str))))
 
+(defspec test-replace-returns-empty-str-when-no-fsm
+  20
+  (for-all [[forms-str] (my-gen/forms-str-gen :fsm? false)]
+    (is (= "" (parsley/replace-fsm forms-str "{}")))))

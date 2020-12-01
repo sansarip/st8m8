@@ -42,10 +42,20 @@
                          get-map)
     :else nil))
 
-(defn parse
-  "Parses Clojure data and returns a JSON string"
-  [input]
-  (let [[f & r :as forms] (read-string (str "[" input "]"))]
+(defn first-fsm-form [forms]
+  (loop [i 0]
+    (if (< i (count forms))
+      (let [form (get forms i)
+            next-i (inc i)]
+        (if (get-map form)
+          [i form]
+          (recur next-i))))))
+
+(defn find-fsm
+  "Returns a JSON string representation of a St8M8-fsm represented in Clojure,
+  symbols are quoted e.g. 'symbol"
+  [file-contents]
+  (let [[f & r :as forms] (read-string (str "[" file-contents "]"))]
     (if-let [result (get-map
                       (cond
                         (and f (not r)) f
@@ -54,4 +64,14 @@
       (-> result treat-quoted-symbols stringify ->json)
       "{}")))
 
-(parse (slurp *input*))
+(defn replace-fsm
+  "Replaces a St8M8-fsm represented in Clojure with a JSON representation of an fsm
+  after transforming the JSON representation of an fsm to a Clojure representation."
+  [file-contents replacement]
+  (let [[f & r :as forms] (read-string (str "[" file-contents "]"))]
+    (if-let [[index form] (first-fsm-form forms)]
+      "")))
+
+
+
+(find-fsm (slurp *input*))

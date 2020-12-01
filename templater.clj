@@ -19,6 +19,6 @@
                      pprint
                      with-out-str)]
     (str (string/replace source ns-regex fixed-ns)
-         "\n\n(parse (slurp *input*))")))
+         "\n\n(find-fsm (slurp *input*))")))
 
 (spit "src/main/resources/scripts/parse.clj" (fix-ns))
