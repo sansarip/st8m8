@@ -7,7 +7,10 @@
 }
 
 .loading-message {
-    -fx-font: "Work Sans" normal 8pt "sans-serif" !important;
+    -fx-family: "Work Sans", sans-serif;
+    -fx-font-weight: normal;
+    -fx-font-style: normal;
+    -fx-font-size: 8pt;
 }
 
 /*
@@ -28,7 +31,10 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 }
 
 .vertex-label {
-    -fx-font: bold 10pt "sans-serif" !important;
+    -fx-family: sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-style: normal;
+    -fx-font-size: 8pt;
     -fx-background: none !important;
 }
 
@@ -42,7 +48,10 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
 }
 
 .edge-label {
-    -fx-font: "Work Sans" normal 8pt "sans-serif" !important;
+    -fx-family: "Work Sans", sans-serif;
+    -fx-font-weight: normal;
+    -fx-font-style: normal;
+    -fx-font-size: 8pt;
     -fx-background: none !important;
 }
 
