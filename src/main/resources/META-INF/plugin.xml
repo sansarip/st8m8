@@ -1,17 +1,17 @@
 <idea-plugin>
     <id>sansarip.com.sansarip.st8m8</id>
     <name>St8M8</name>
+    <vendor>sansarip</vendor>
+    <idea-version since-build="201.6668"/>
 
-    <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
-    ]]></description>
-
-    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-         on how to target different products -->
-    <!-- uncomment to enable plugin in all products
-    <depends>com.intellij.modules.lang</depends>
-    -->
+    <description>
+        <![CDATA[
+        <strong>St8M8 / State Mate for Clojure based finite state machines (digraphs)</strong>
+        <br/>
+        <br/>
+        <a href="https://github.com/sansarip/st8m8">Github Repo</a>
+        ]]>
+    </description>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
@@ -20,6 +20,7 @@
                     icon="/assets/ico.svg"
                     factoryClass="com.sansarip.st8m8.App"/>
     </extensions>
+    <depends>com.intellij.javafx</depends>
 
     <applicationListeners>
         <listener class="com.sansarip.st8m8.listeners.FileContentListener"

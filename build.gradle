@@ -1,12 +1,7 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.4.20'
+    id 'org.jetbrains.intellij' version '0.6.5'
 }
-
-group 'sansarip'
-version '1.0-SNAPSHOT'
-
-sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -14,27 +9,27 @@ repositories {
         url "https://repo.clojars.org"
     }
     flatDir {
-        dirs 'libs'
+        dirs 'libs', 'target'
     }
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile (name:'javafx.base', ext:'jar')
-    compile (name:'javafx.graphics', ext:'jar')
-    compile (name:'javafx.controls', ext:'jar')
-    compile (name:'javafx.fxml', ext:'jar')
-    compile (name:'javafx.swing', ext:'jar')
+//    compile(name: 'javafx.graphics', ext: 'jar')
+//    compile(name: 'javafx.base', ext: 'jar')
+//    compile(name: 'javafx.controls', ext: 'jar')
+//    compile(name: 'javafx.fxml', ext: 'jar')
+//    compile(name: 'javafx.swing', ext: 'jar')
+    compile(name: 'st8m8-0.1.0-SNAPSHOT-standalone', ext: 'jar')
 }
 
-// See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2019.3'
+    pluginName name
+
+    version ideaVersion
+    updateSinceUntilBuild = false
+    setPlugins('com.intellij.javafx:1.0.2')
 }
 
-
-patchPluginXml {
-    changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
-}
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion

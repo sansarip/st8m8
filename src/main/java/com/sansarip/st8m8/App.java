@@ -59,7 +59,8 @@ public class App implements ToolWindowFactory {
     private Scene newScene(Parent view) {
         Component parentComponent = this.toolWindow.getComponent().getParent();
         Scene scene = new Scene(view, parentComponent.getWidth(), parentComponent.getHeight());
-        scene.getStylesheets().add(resourceToUri("./st8m8.css", "css/st8m8.css"));
+//        scene.getStylesheets().add(resourceToUri("./st8m8.css", "css/st8m8.css"));
+        scene.getStylesheets().add(resourceFromHomeDir("st8m8.css", "css"));
         return scene;
     }
 

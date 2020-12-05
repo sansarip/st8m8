@@ -17,6 +17,9 @@ import org.apache.commons.io.IOUtils;
 
 import java.awt.*;
 import java.io.*;
+
+import st8m8.parsley;
+
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +51,19 @@ public class Utilities {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String resourceFromHomeDir(String fname, String defaultResourcePath) {
+        File file = new File(String.join(
+                File.separator,
+                System.getProperty("user.home"),
+                ".st8m8",
+                fname));
+        if (file.exists()) {
+            String fp = file.toURI().toString();
+            return fp;
+        }
+        return Utilities.class.getResource(File.separator + defaultResourcePath + File.separator + fname).toExternalForm();
     }
 
     public static void createScripts() {
@@ -91,10 +107,11 @@ public class Utilities {
 
     public static Map<String, Map<String, String>> readClojureFile(String fileName) {
         try {
-            String json = execCmd(String.format("./bb.sh \"%s\"", fileName))
-                    .replaceAll("\\\\\"", "\"") // \" to "
-                    .replaceAll("\\\\\\\\\"", "\\\\\"") // \\\" to \"
-                    .replaceAll("^\"+|\"+$", "");
+//            String json = execCmd(String.format("./bb.sh \"%s\"", fileName))
+//                    .replaceAll("\\\\\"", "\"") // \" to "
+//                    .replaceAll("\\\\\\\\\"", "\\\\\"") // \\\" to \"
+//                    .replaceAll("^\"+|\"+$", "");
+            String json = parsley.find_fsm(fileName);
             return toHashMap(json);
         } catch (IOException e) {
             e.printStackTrace();
