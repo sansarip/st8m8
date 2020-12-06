@@ -1,8 +1,15 @@
 package com.sansarip.st8m8;
 
+import clojure.lang.Compiler;
+import clojure.lang.IPersistentMap;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intellij.ide.plugins.PluginManager;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
@@ -21,6 +28,7 @@ import java.io.*;
 import st8m8.parsley;
 
 import java.net.MalformedURLException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -106,15 +114,23 @@ public class Utilities {
     }
 
     public static Map<String, Map<String, String>> readClojureFile(String fileName) {
+        ClassLoader previous = Thread.currentThread().getContextClassLoader();
+        final ClassLoader parentClassLoader = App.class.getClassLoader();
+        Thread.currentThread().setContextClassLoader(parentClassLoader);
         try {
-//            String json = execCmd(String.format("./bb.sh \"%s\"", fileName))
-//                    .replaceAll("\\\\\"", "\"") // \" to "
-//                    .replaceAll("\\\\\\\\\"", "\\\\\"") // \\\" to \"
-//                    .replaceAll("^\"+|\"+$", "");
-            String json = parsley.find_fsm(fileName);
-            return toHashMap(json);
-        } catch (IOException e) {
-            e.printStackTrace();
+            clojure.lang.RT.init(); // Removing this line will cause Compiler.LOADER to throw a null-pointer
+            IPersistentMap bindings = clojure.lang.RT.map(Compiler.LOADER, parentClassLoader);
+            clojure.lang.Var.pushThreadBindings(bindings);
+            try {
+                String json = parsley.find_fsm(fileName);
+                return toHashMap(json);
+            } finally {
+                clojure.lang.Var.popThreadBindings();
+            }
+        } catch (Exception e) {
+            App.logger.error(e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(previous);
         }
         return new HashMap<>();
     }
@@ -164,7 +180,11 @@ public class Utilities {
                         fileName.endsWith(".cljs") ||
                         fileName.endsWith(".cljc")) ||
                         fileName.equals("")) &&
-                (equals == fileName.equals(targetFileName(project)));
+                (equals == null || equals == fileName.equals(targetFileName(project)));
+    }
+
+    public static Boolean loadableFile(Project project, String fileName) {
+        return loadableFile(project, fileName, null);
     }
 
     public static Project getActiveProject() {
@@ -191,7 +211,11 @@ public class Utilities {
                             fileName = targetFileName(project);
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        App app = getApp(project);
+                        if (app != null) {
+                            app.isLoading = false;
+                        }
+                        App.logger.error(e);
                     }
                 }
             }).start();
