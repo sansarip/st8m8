@@ -11,6 +11,8 @@ public class ReadAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
-        Utilities.loadClojureFile(project);
+        if (Utilities.loadableFile(project, Utilities.targetFileName(project))) {
+            Utilities.loadClojureFile(project);
+        }
     }
 }
