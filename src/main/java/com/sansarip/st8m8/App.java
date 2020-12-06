@@ -47,7 +47,7 @@ public class App implements ToolWindowFactory {
     }
 
     public App(ToolWindow toolWindow) {
-        this.panel =new JFXPanel();
+        this.panel = new JFXPanel();
         this.digraph = new DigraphEdgeList();
         this.toolWindow = toolWindow;
     }
@@ -58,29 +58,28 @@ public class App implements ToolWindowFactory {
         return newApp;
     }
 
-    private Scene newScene(Parent view) {
-        Component parentComponent = this.toolWindow.getComponent().getParent();
-        Scene scene = new Scene(view, parentComponent.getWidth(), parentComponent.getHeight());
-//        scene.getStylesheets().add(resourceToUri("./st8m8.css", "css/st8m8.css"));
+    private static Scene newScene(Parent view, Integer width, Integer height) {
+        Scene scene = new Scene(view, width, height);
         scene.getStylesheets().add(resourceFromHomeDir("st8m8.css", "css"));
         return scene;
     }
 
-    private void setScene(Parent view, App thisApp) {
-        thisApp.panel.setScene(newScene(view));
+    private static void setScene(Parent view, App thisApp) {
+        Component parentComponent = thisApp.toolWindow.getComponent().getParent();
+        thisApp.panel.setScene(newScene(view, parentComponent.getWidth(), parentComponent.getHeight()));
     }
 
-    private void reloadPanel(App thisApp) {
+    private static void reloadPanel(App thisApp) {
         JComponent component = thisApp.toolWindow.getComponent();
         component.getParent().add(thisApp.panel);
     }
 
-    private void setProperties(Digraph dg, SmartGraphPanel graphView, App thisApp) {
+    private static void setProperties(Digraph dg, SmartGraphPanel graphView, App thisApp) {
         thisApp.digraph = dg;
         thisApp.graphView = graphView;
     }
 
-    public void load(String message, App thisApp) {
+    public static void startLoading(String message, App thisApp) {
         thisApp.isLoading = true;
         Platform.runLater(() -> {
             VBox layout = new VBox(10);
@@ -101,7 +100,13 @@ public class App implements ToolWindowFactory {
         reloadPanel(thisApp);
     }
 
-    public void setGraphPanelScene(Digraph dg, App thisApp) {
+    public static void stopLoading(App thisApp) {
+        if (thisApp != null) {
+            thisApp.isLoading = false;
+        }
+    }
+
+    public static void setGraphPanelScene(Digraph dg, App thisApp) {
         Platform.runLater(() -> {
             SmartGraphPanel<String, String> graphView = new SmartGraphPanel<>(dg, thisApp.strategy);
             setProperties(dg, graphView, thisApp);

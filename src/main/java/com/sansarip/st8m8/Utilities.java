@@ -4,31 +4,22 @@ import clojure.lang.Compiler;
 import clojure.lang.IPersistentMap;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.intellij.ide.plugins.PluginManager;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.openapi.wm.WindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import javafx.application.Platform;
 import org.apache.commons.io.IOUtils;
 
-import java.awt.*;
 import java.io.*;
 
 import st8m8.parsley;
 
 import java.net.MalformedURLException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -153,7 +144,7 @@ public class Utilities {
             }
         }
 
-        app.setGraphPanelScene(app.digraph, app);
+        App.setGraphPanelScene(app.digraph, app);
     }
 
     public static void loadClojureFile(Project project) {
@@ -161,13 +152,17 @@ public class Utilities {
             String fileName = targetFileName(project);
             App app = getApp(project);
             if (app != null && !app.isLoading) {
-                app.load("Making graph", app);
+                App.startLoading("Making graph", app);
 
                 // Read in Clojure file and update graph
                 Platform.runLater(() -> {
                     Map<String, Map<String, String>> nodeMap = readClojureFile(fileName);
-                    updateGraph(app, nodeMap);
-                    app.isLoading = false;
+                    try {
+                        updateGraph(app, nodeMap);
+                    } catch (Exception e) {
+                        App.logger.error(e);
+                    }
+                    App.stopLoading(app);
                 });
             }
         }
@@ -187,18 +182,6 @@ public class Utilities {
         return loadableFile(project, fileName, null);
     }
 
-    public static Project getActiveProject() {
-        Project[] projects = ProjectManager.getInstance().getOpenProjects();
-        Project activeProject = null;
-        for (Project project : projects) {
-            Window window = WindowManager.getInstance().suggestParentWindow(project);
-            if (window != null && window.isActive()) {
-                activeProject = project;
-            }
-        }
-        return activeProject;
-    }
-
     public static void watchAndLoad(Project project) {
         ApplicationManager.getApplication().invokeLater(() -> {
             new Thread(() -> {
@@ -207,14 +190,12 @@ public class Utilities {
                     try {
                         Thread.sleep(1000);
                         if (loadableFile(project, fileName, false)) {
+                            fileName = targetFileName(project); // Should be first to prevent error-loop
                             loadClojureFile(project);
-                            fileName = targetFileName(project);
                         }
                     } catch (Exception e) {
                         App app = getApp(project);
-                        if (app != null) {
-                            app.isLoading = false;
-                        }
+                        App.stopLoading(app);
                         App.logger.error(e);
                     }
                 }
