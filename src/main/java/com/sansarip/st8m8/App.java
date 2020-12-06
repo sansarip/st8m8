@@ -5,6 +5,7 @@ import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
 import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -33,6 +34,7 @@ public class App implements ToolWindowFactory {
     public Digraph digraph;
     public Boolean isLoading = false;
     public SmartGraphPanel graphView = null;
+    public static Logger logger = Logger.getInstance(App.class);
     // This stores App instance references for different open projects
     public HashMap<String, App> apps;
     JFXPanel panel;
