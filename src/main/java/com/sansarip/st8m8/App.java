@@ -121,7 +121,6 @@ public class App implements ToolWindowFactory {
      */
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        createScripts();
         String projectName = project.getName();
         App thisApp = initialize(toolWindow, projectName);
         Platform.setImplicitExit(false);

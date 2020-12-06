@@ -17,6 +17,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 
+import org.jetbrains.annotations.NotNull;
 import st8m8.parsley;
 
 import java.net.MalformedURLException;
@@ -24,34 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Utilities {
-    public static File resourceToFile(String fname, String resourcePath) {
-        InputStream inputStream = Utilities.class.getClassLoader().getResourceAsStream(resourcePath);
-        File file = new File(fname);
-        try (OutputStream outputStream = new FileOutputStream(file)) {
-            if (inputStream != null) {
-                IOUtils.copy(inputStream, outputStream);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return file;
-    }
-
-    public static String execCmd(String cmd) throws java.io.IOException {
-        java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
-    }
-
-    public static String resourceToUri(String fname, String resourcePath) {
-        File f = resourceToFile(fname, resourcePath);
-        try {
-            return f.toURI().toURL().toExternalForm();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static String resourceFromHomeDir(String fname, String defaultResourcePath) {
         File file = new File(String.join(
                 File.separator,
@@ -63,18 +36,6 @@ public class Utilities {
             return fp;
         }
         return Utilities.class.getResource(File.separator + defaultResourcePath + File.separator + fname).toExternalForm();
-    }
-
-    public static void createScripts() {
-        resourceToFile("parse.clj", "scripts/parse.clj");
-        resourceToFile("bb", "scripts/bb");
-        resourceToFile("bb.sh", "scripts/bb.sh");
-        try {
-            execCmd("chmod +x ./bb");
-            execCmd("chmod +x ./bb.sh");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public static String targetFileName(Project project) {
@@ -127,7 +88,7 @@ public class Utilities {
     }
 
 
-    public static void updateGraph(App app, Map<String, Map<String, String>> nodeMap) {
+    public static void updateGraph(@NotNull App app, Map<String, Map<String, String>> nodeMap) {
         app.digraph = new DigraphEdgeList<>();
 
         // vertices
@@ -147,24 +108,22 @@ public class Utilities {
         App.setGraphPanelScene(app.digraph, app);
     }
 
-    public static void loadClojureFile(Project project) {
-        if (project != null) {
-            String fileName = targetFileName(project);
-            App app = getApp(project);
-            if (app != null && !app.isLoading) {
-                App.startLoading("Making graph", app);
+    public static void loadClojureFile(@NotNull Project project) {
+        String fileName = targetFileName(project);
+        App app = getApp(project);
+        if (app != null && !app.isLoading) {
+            App.startLoading("Making graph", app);
 
-                // Read in Clojure file and update graph
-                Platform.runLater(() -> {
-                    Map<String, Map<String, String>> nodeMap = readClojureFile(fileName);
-                    try {
-                        updateGraph(app, nodeMap);
-                    } catch (Exception e) {
-                        App.logger.error(e);
-                    }
-                    App.stopLoading(app);
-                });
-            }
+            // Read in Clojure file and update graph
+            Platform.runLater(() -> {
+                Map<String, Map<String, String>> nodeMap = readClojureFile(fileName);
+                try {
+                    updateGraph(app, nodeMap);
+                } catch (Exception e) {
+                    App.logger.error(e);
+                }
+                App.stopLoading(app);
+            });
         }
     }
 
