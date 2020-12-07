@@ -25,6 +25,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 
+import static com.sansarip.st8m8.InvalidFSMException.INVALID_FSM_MESSAGE;
 import static com.sansarip.st8m8.Utilities.*;
 
 /**
@@ -130,7 +131,7 @@ public class App implements ToolWindowFactory {
 
         // Store object properties for action-access
         new AppRef(this, projectName);
-        setGraphPanelScene(thisApp.digraph, thisApp);
+        displayMessage(INVALID_FSM_MESSAGE, thisApp);
 
         // Watch for changes in file focus
         Utilities.watchAndLoad(project);

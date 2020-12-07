@@ -41,18 +41,18 @@
 (defspec test-find-returns-json-with-same-length
   20
   (for-all [[forms-str _ [_ _ fsm]] (my-gen/forms-str-gen)]
-    (let [json (parsley/find_fsm forms-str)]
+    (let [json (parsley/find-fsm forms-str)]
       (testing "The resulting json has the same length as the input map"
         (is (= (count fsm))
             (= (count (json/parse-string json))))))))
 
 (deftest test-find-returns-empty-map-json-for-empty-str
-  (= "{}" (parsley/find_fsm "")))
+  (= nil (parsley/find-fsm "")))
 
 (defspec test-find-returns-empty-map-json-for-non-maps
   20
   (for-all [[forms-str] (my-gen/forms-str-gen :fsm? false)]
-    (= "{}" (parsley/find_fsm forms-str))))
+    (= nil (parsley/find-fsm forms-str))))
 
 #_
 (defspec test-replace-returns-empty-str-when-no-fsm

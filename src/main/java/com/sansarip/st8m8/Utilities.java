@@ -66,7 +66,7 @@ public class Utilities {
 
     }
 
-    public static Map<String, Map<String, String>> readClojureFile(String fileName) throws IOException {
+    public static Map<String, Map<String, String>> readClojureFile(String fileName) throws IOException, InvalidFSMException {
         ClassLoader previous = Thread.currentThread().getContextClassLoader();
         final ClassLoader parentClassLoader = App.class.getClassLoader();
         Thread.currentThread().setContextClassLoader(parentClassLoader);
@@ -76,6 +76,9 @@ public class Utilities {
             clojure.lang.Var.pushThreadBindings(bindings);
             try {
                 String json = parsley.find_fsm(fileName);
+                if (json == null) {
+                    throw new InvalidFSMException();
+                }
                 return toHashMap(json);
             } finally {
                 clojure.lang.Var.popThreadBindings();
@@ -106,14 +109,20 @@ public class Utilities {
         App.setGraphPanelScene(app.digraph, app);
     }
 
-    public static void handleException(App app, Exception exception, String displayMessage) {
+    public static void handleException(App app, Exception exception, String displayMessage, Boolean log) {
         App.displayMessage(displayMessage, app);
-        App.logger.error(exception);
+        if (log) {
+            App.logger.error(exception);
+        }
+    }
+
+    public  static  void handleException(App app, Exception exception, String displayMessage) {
+        handleException(app, exception, displayMessage, true);
     }
 
     public static void handleException(App app, Exception exception) {
-        if (exception instanceof InvalidVertexException) {
-            handleException(app, exception, exception.getMessage());
+        if (exception instanceof InvalidVertexException || exception instanceof InvalidFSMException) {
+            handleException(app, exception, exception.getMessage(), false);
         } else {
             handleException(app, exception, UNKNOWN_ERROR_MESSAGE);
         }

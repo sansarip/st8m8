@@ -79,7 +79,7 @@
              (catch Exception e
                (pprint e))))
 
-(defn find_fsm
+(defn find-fsm
       "Returns a JSON string representation of a St8M8-fsm represented in Clojure,
       symbols are quoted e.g. 'symbol"
       [file-contents]
@@ -89,11 +89,10 @@
                                (and f (not r)) f
                                r forms
                                :else nil))]
-                   (-> result treat-quoted-symbols stringify ->json)
-                   "{}")))
+                   (-> result treat-quoted-symbols stringify ->json))))
 
 (defn -find_fsm [file-path]
-      (find_fsm (slurp file-path)))
+      (find-fsm (slurp file-path)))
 
 
 (defn json->replacement-str [st8m8-form replacement]
