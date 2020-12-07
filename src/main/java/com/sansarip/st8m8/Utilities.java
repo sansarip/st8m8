@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Utilities {
-    public static final String UNKNOWN_ERROR_MESSAGE = "An unknown error occurred and has been logged.";
+    public static final String UNKNOWN_ERROR_MESSAGE = "An unknown error occurred and has been logged";
 
     public static String resourceFromHomeDir(String fname, String defaultResourcePath) {
         File file = new File(String.join(
