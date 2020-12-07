@@ -12,6 +12,7 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -79,8 +80,8 @@ public class App implements ToolWindowFactory {
         thisApp.graphView = graphView;
     }
 
-    public static void startLoading(String message, App thisApp) {
-        thisApp.isLoading = true;
+    public static void displayMessage(String message, App thisApp, Boolean showLoadingSpinner) {
+        thisApp.isLoading = showLoadingSpinner;
         Platform.runLater(() -> {
             VBox layout = new VBox(10);
             layout.setAlignment(Pos.CENTER);
@@ -89,9 +90,13 @@ public class App implements ToolWindowFactory {
             loadingSpinner.getStyleClass().add("loader");
 
             Label loadingMessage = new Label(message);
-            loadingMessage.getStyleClass().add("loading-message");
+            loadingMessage.getStyleClass().add("status-message");
 
-            layout.getChildren().addAll(loadingMessage, loadingSpinner);
+            Node[] children = showLoadingSpinner ?
+                    new Node[]{loadingMessage, loadingSpinner} :
+                    new Node[]{loadingMessage};
+
+            layout.getChildren().addAll(children);
             layout.getStyleClass().add("container");
 
             setScene(layout, thisApp);
@@ -100,10 +105,8 @@ public class App implements ToolWindowFactory {
         reloadPanel(thisApp);
     }
 
-    public static void stopLoading(App thisApp) {
-        if (thisApp != null) {
-            thisApp.isLoading = false;
-        }
+    public static void displayMessage(String message, App thisApp) {
+        displayMessage(message, thisApp, false);
     }
 
     public static void setGraphPanelScene(Digraph dg, App thisApp) {

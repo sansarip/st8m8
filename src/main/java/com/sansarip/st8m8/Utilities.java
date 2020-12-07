@@ -3,6 +3,7 @@ package com.sansarip.st8m8;
 import clojure.lang.Compiler;
 import clojure.lang.IPersistentMap;
 import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
+import com.brunomnsilva.smartgraph.graph.InvalidVertexException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -13,18 +14,18 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentManager;
 import javafx.application.Platform;
-import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 
 import org.jetbrains.annotations.NotNull;
 import st8m8.parsley;
 
-import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Utilities {
+    public static final String UNKNOWN_ERROR_MESSAGE = "An unknown error occurred and has been logged.";
+
     public static String resourceFromHomeDir(String fname, String defaultResourcePath) {
         File file = new File(String.join(
                 File.separator,
@@ -65,7 +66,7 @@ public class Utilities {
 
     }
 
-    public static Map<String, Map<String, String>> readClojureFile(String fileName) {
+    public static Map<String, Map<String, String>> readClojureFile(String fileName) throws IOException {
         ClassLoader previous = Thread.currentThread().getContextClassLoader();
         final ClassLoader parentClassLoader = App.class.getClassLoader();
         Thread.currentThread().setContextClassLoader(parentClassLoader);
@@ -79,12 +80,9 @@ public class Utilities {
             } finally {
                 clojure.lang.Var.popThreadBindings();
             }
-        } catch (Exception e) {
-            App.logger.error(e);
         } finally {
             Thread.currentThread().setContextClassLoader(previous);
         }
-        return new HashMap<>();
     }
 
 
@@ -108,21 +106,33 @@ public class Utilities {
         App.setGraphPanelScene(app.digraph, app);
     }
 
+    public static void handleException(App app, Exception exception, String displayMessage) {
+        App.displayMessage(displayMessage, app);
+        App.logger.error(exception);
+    }
+
+    public static void handleException(App app, Exception exception) {
+        if (exception instanceof InvalidVertexException) {
+            handleException(app, exception, exception.getMessage());
+        } else {
+            handleException(app, exception, UNKNOWN_ERROR_MESSAGE);
+        }
+    }
+
     public static void loadClojureFile(@NotNull Project project) {
         String fileName = targetFileName(project);
         App app = getApp(project);
         if (app != null && !app.isLoading) {
-            App.startLoading("Making graph", app);
+            App.displayMessage("Making graph", app);
 
             // Read in Clojure file and update graph
             Platform.runLater(() -> {
-                Map<String, Map<String, String>> nodeMap = readClojureFile(fileName);
                 try {
+                    Map<String, Map<String, String>> nodeMap = readClojureFile(fileName);
                     updateGraph(app, nodeMap);
                 } catch (Exception e) {
-                    App.logger.error(e);
+                    handleException(app, e);
                 }
-                App.stopLoading(app);
             });
         }
     }
@@ -154,8 +164,7 @@ public class Utilities {
                         }
                     } catch (Exception e) {
                         App app = getApp(project);
-                        App.stopLoading(app);
-                        App.logger.error(e);
+                        handleException(app, e);
                     }
                 }
             }).start();
