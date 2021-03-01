@@ -1,7 +1,8 @@
 (ns st8m8.parsley
   (:gen-class
     :name st8m8.parsley
-    :methods [#^{:static true} [find_fsm [String] String]])
+    :methods [#^{:static true} [find_fsm [String] String]
+              #^{:static true} [replace_fsm [String String] String]])
   (:require [cheshire.core :as json]
             [rewrite-clj.node :as n]
             [rewrite-clj.parser :as p]
@@ -14,10 +15,6 @@
 
 (defn ->json [m]
   (json/generate-string m {:escape-non-ascii true}))
-
-;; Helpful testing utility
-(defn <-json [s]
-  (json/parse-string s true))
 
 (defn treat-quoted-symbols [m]
   (postwalk (fn [form]
@@ -61,21 +58,17 @@
 (defn get-st8m8-node-indexed [nodes]
   (loop [i 0]
     (if (< i (count nodes))
-      (let [node (get nodes i)
-            st8m8 (get-st8m8-node node)]
+      (let [node (get nodes i)]
         (if (get-st8m8-node node)
           [node i]
           (recur (inc i)))))))
-
-(defn read-string* [input]
-  (try (read-string (str "[" input "]"))
-       (catch Exception _)))
 
 (defn find-fsm
   "Returns a JSON string representation of a St8M8-fsm represented in Clojure,
   symbols are quoted e.g. 'symbol"
   [file-contents]
-  (let [[f & r :as forms] (read-string* file-contents)]
+  (let [[f & r :as forms] (try (read-string (str "[" file-contents "]"))
+                               (catch Exception _))]
     (if-let [result (get-st8m8-map
                       (cond
                         (and f (not r)) f
@@ -103,13 +96,6 @@
                           %)
                        children))
         replacement-node))))
-
-
-(defn replace-lines [content start-index end-index replacement]
-  (str
-    (subs content 0 (dec start-index))
-    (pprn-str replacement)
-    (subs content end-index)))
 
 (defn replace-fsm
   "Replaces a St8M8-fsm represented in Clojure with a JSON representation of an fsm
